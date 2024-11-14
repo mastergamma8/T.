@@ -17,10 +17,7 @@ user_star_count = {}
 # Функция для возвращения в главное меню
 async def show_main_menu(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(
-        keyboard=[
-            [types.KeyboardButton(text="⭐️Пополнить звездами")],
-            [types.KeyboardButton(text="💸Вывод на карту")]
-        ],
+        keyboard=[[types.KeyboardButton(text="⭐️Пополнить звездами")]],
         resize_keyboard=True,
         one_time_keyboard=True
     )
@@ -55,7 +52,7 @@ async def receive_star_count(message: types.Message):
                 return
             user_star_count[message.from_user.id] = star_count
             await send_invoice_handler(message, star_count)
-            user_state[message.from_user.id] = None  # Сбрасываем состояние после отправки инвойса
+            user_state[message.from_user.id] = "waiting_for_payment"  # Устанавливаем состояние ожидания оплаты
         except ValueError:
             await message.reply("Пожалуйста, введите корректное количество звезд.")
 
@@ -63,17 +60,12 @@ async def receive_star_count(message: types.Message):
 dp.pre_checkout_query.register(pre_checkout_handler)
 
 # Обработчик успешной оплаты
-dp.message.register(success_payment_handler, F.successful_payment)
+@dp.message.register(success_payment_handler, F.successful_payment)
 
-# Обработчик для кнопки "💸Вывод на карту"
-@dp.message(F.text == "💸Вывод на карту")
-async def withdraw_handler(message: types.Message):
-    user_state[message.from_user.id] = "waiting_for_card_number"
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=[[types.KeyboardButton(text="⬅️Назад")]],
-        resize_keyboard=True
-    )
-    await message.reply("Введите номер карты", reply_markup=keyboard)
+# Обработчик для успешной оплаты
+async def success_payment_handler(message: types.Message):
+    await message.reply("Вы успешно пополнили баланс! Теперь введите номер карты для вывода.")
+    user_state[message.from_user.id] = "waiting_for_card_number"  # Переход в состояние ожидания ввода номера карты
 
 # Обработчик для ввода номера карты
 @dp.message(lambda message: user_state.get(message.from_user.id) == "waiting_for_card_number")
@@ -81,7 +73,7 @@ async def receive_card_number(message: types.Message):
     if message.text == "⬅️Назад":
         await show_main_menu(message)
     else:
-        await message.reply("Заявка успешно создана, Ожидайте.")
+        await message.reply("Заявка успешно создана, ожидайте.")
         user_state[message.from_user.id] = None  # Сбрасываем состояние после создания заявки
 
 async def main():
