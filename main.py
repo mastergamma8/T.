@@ -25,10 +25,9 @@ async def show_main_menu(message: types.Message):
     )
     # Если пользователь отправил звезды, добавляем кнопку "Вывод на карту"
     if user_star_count.get(message.from_user.id):
-        keyboard.add(types.KeyboardButton(text="💸Вывод на карту"))
+        keyboard.insert(types.KeyboardButton(text="💸Вывод на карту"))
     await message.reply("Выберите опцию", reply_markup=keyboard)
     user_state[message.from_user.id] = None  # Сброс состояния
-
 # Обработчик для команды /start
 @dp.message(F.text == "/start")
 async def start_command_handler(message: types.Message):
