@@ -1,4 +1,4 @@
-from aiogram.types import LabeledPrice, Message, PreCheckoutQuery
+from aiogram.types import LabeledPrice, Message
 from botlogic.keyboards.payment_keyboard import payment_keyboard
 
 async def send_invoice_handler(message: Message, star_count: int):
@@ -9,7 +9,7 @@ async def send_invoice_handler(message: Message, star_count: int):
         prices=prices,
         provider_token="",  # Добавьте ваш provider_token
         payload="channel_support",
-        currency="RUB",  # Используйте правильную валюту
+        currency="XTR",  # Используйте правильную валюту
         reply_markup=payment_keyboard(),
     )
 
