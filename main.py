@@ -18,13 +18,12 @@ user_star_count = {}
 async def start_command_handler(message: types.Message):
     # Создаем клавиатуру с кнопками
     keyboard = types.ReplyKeyboardMarkup(
+        keyboard=[
+            [types.KeyboardButton(text="⭐️Пополнить звездами")],
+            [types.KeyboardButton(text="💸Вывод на карту")]
+        ],
         resize_keyboard=True,  # Настройки клавиатуры
         one_time_keyboard=True  # Закрытие клавиатуры после нажатия кнопки
-    )
-    # Добавляем кнопки на клавиатуру
-    keyboard.add(
-        types.KeyboardButton(text="⭐️Пополнить звездами"), 
-        types.KeyboardButton(text="💸Вывод на карту")
     )
     await message.reply("Привет! Я ваш бот. Чем могу помочь?", reply_markup=keyboard)
 
