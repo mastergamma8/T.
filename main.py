@@ -9,15 +9,11 @@ dp = Dispatcher()
 
 user_state = {}
 user_star_count = {}
-user_balance = {}
 
 # Главное меню
 async def show_main_menu(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(
-        keyboard=[
-            [types.KeyboardButton(text="⭐️Пополнить звездами")],
-            [types.KeyboardButton(text="💸Вывод на карту")]
-        ],
+        keyboard=[[types.KeyboardButton(text="⭐️Пополнить звездами")]],
         resize_keyboard=True,
         one_time_keyboard=True
     )
@@ -56,17 +52,7 @@ async def receive_star_count(message: types.Message):
         except ValueError:
             await message.reply("Пожалуйста, введите корректное количество звезд.")
 
-# Обработчик кнопки "💸Вывод на карту"
-@dp.message(F.text == "💸Вывод на карту")
-async def withdraw_handler(message: types.Message):
-    user_id = message.from_user.id
-    if user_balance.get(user_id, 0) > 0:
-        await message.reply("Введите номер карты для вывода.")
-        user_state[user_id] = "waiting_for_card_number"
-    else:
-        await message.reply("Для вывода на карту сначала пополните баланс.")
-
-# Получение номера карты после успешного пополнения или нажатия на "💸Вывод на карту" с достаточным балансом
+# Получение номера карты после успешного пополнения
 @dp.message(lambda message: user_state.get(message.from_user.id) == "waiting_for_card_number")
 async def handle_card_number(message: types.Message):
     if message.text == "⬅️Назад":
