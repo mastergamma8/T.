@@ -25,7 +25,7 @@ async def start_command_handler(message: types.Message):
         resize_keyboard=True,  # Настройки клавиатуры
         one_time_keyboard=True  # Закрытие клавиатуры после нажатия кнопки
     )
-    await message.reply("Привет! Я ваш бот. Чем могу помочь?", reply_markup=keyboard)
+    await message.reply("Выберите опцию", reply_markup=keyboard)
 
 # Обработчик для кнопки "⭐️Пополнить звездами"
 @dp.message(F.text == "⭐️Пополнить звездами")
