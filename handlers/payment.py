@@ -1,4 +1,4 @@
-from aiogram.types import LabeledPrice, Message
+from aiogram.types import LabeledPrice, Message, PreCheckoutQuery
 from botlogic.keyboards.payment_keyboard import payment_keyboard
 
 async def send_invoice_handler(message: Message, star_count: int):
