@@ -4,7 +4,7 @@ from botlogic.keyboards.payment_keyboard import payment_keyboard
 # Обработчик отправки инвойса
 async def send_invoice_handler(message: Message, star_count: int):
     # Цена за 1 звезду = 100 единиц валюты XTR
-    price_per_star = 100
+    price_per_star = 1
     total_amount = star_count * price_per_star  # Рассчитываем общую сумму
 
     # Создаем список цен для инвойса
