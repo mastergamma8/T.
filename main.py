@@ -1,10 +1,10 @@
 from aiogram import Bot, Dispatcher, types, F
-from payment import send_invoice_handler, pre_checkout_handler, success_payment_handler
-from handlers import payment
+from handlers.payment import send_invoice_handler, pre_checkout_handler, success_payment_handler
 import asyncio
 
 TOKEN = '7596590431:AAEpLzcjwyar1hOqR1jGEnPY_ZA6YORzP-w'  # Замените на ваш токен бота
 
+# Создаем экземпляр бота и диспетчера
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
@@ -24,7 +24,7 @@ async def start_command_handler(message: types.Message):
 # Обработчик для кнопки "⭐️Пополнить звездами"
 @dp.message(F.text == "⭐️Пополнить звездами")
 async def donate_handler(message: types.Message):
-    await message.reply("Введите количество звезд, которое вы хотите отправить")
+    await message.reply("Введите количество звезд, которое вы хотите отправить.")
     user_star_count[message.from_user.id] = None
 
 # Обработчик для получения количества звезд
