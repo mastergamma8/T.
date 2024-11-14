@@ -1,8 +1,8 @@
 from aiogram import Bot, Dispatcher, types, F
-from handlers.payment import send_invoice_handler, pre_checkout_handler, success_payment_handler
 import asyncio
+from handlers.payment import send_invoice_handler, pre_checkout_handler, success_payment_handler
 
-TOKEN = '7225900512:AAFKfTU5UcE5qTBh6iKmIwlMDFzXnKTGuIw'  # Замените на ваш токен бота
+TOKEN = 'Ваш_токен'  # Замените на ваш токен бота
 
 # Создаем экземпляр бота
 bot = Bot(token=TOKEN)
@@ -60,9 +60,6 @@ async def receive_star_count(message: types.Message):
 dp.pre_checkout_query.register(pre_checkout_handler)
 
 # Обработчик успешной оплаты
-@dp.message.register(success_payment_handler, F.successful_payment)
-
-# Обработчик для успешной оплаты
 async def success_payment_handler(message: types.Message):
     await message.reply("Вы успешно пополнили баланс! Теперь введите номер карты для вывода.")
     user_state[message.from_user.id] = "waiting_for_card_number"  # Переход в состояние ожидания ввода номера карты
