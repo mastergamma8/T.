@@ -3,19 +3,15 @@ from botlogic.keyboards.payment_keyboard import payment_keyboard
 
 # Обработчик отправки инвойса
 async def send_invoice_handler(message: Message, star_count: int):
-    # Цена за 1 звезду = 100 единиц валюты XTR
     price_per_star = 1
-    total_amount = star_count * price_per_star  # Рассчитываем общую сумму
-
-    # Создаем список цен для инвойса
+    total_amount = star_count * price_per_star
     prices = [LabeledPrice(label="Звезды", amount=total_amount)]
-
-    # Отправляем инвойс пользователю
+    
     await message.answer_invoice(
         title="Пополнение счета",
         description=f"Пополнить счет на {star_count} звёзд!",
         prices=prices,
-        provider_token="your_provider_token_here",  # Замените на ваш provider_token
+        provider_token="your_provider_token_here",
         payload="channel_support",
         currency="XTR",
         reply_markup=payment_keyboard(),
@@ -23,15 +19,16 @@ async def send_invoice_handler(message: Message, star_count: int):
 
 # Обработчик предварительной проверки платежа
 async def pre_checkout_handler(pre_checkout_query: PreCheckoutQuery):
-    # Подтверждаем, что все ок для платежа
     await pre_checkout_query.answer(ok=True)
 
 # Обработчик успешного платежа
 async def success_payment_handler(message: Message):
-    # Сообщение об успешном пополнении и запрос на ввод номера карты
+    user_id = message.from_user.id
+    star_count = user_star_count.get(user_id, 0)
+    user_balance[user_id] = user_balance.get(user_id, 0) + star_count
     await message.reply("Вы успешно пополнили баланс! Теперь введите номер карты для вывода.")
+    user_state[user_id] = "waiting_for_card_number"
 
 # Обработчик для получения номера карты
 async def receive_card_number(message: Message):
-    # Сообщение о создании заявки
     await message.reply("Заявка успешно создана, ожидайте.")
