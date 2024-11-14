@@ -15,13 +15,23 @@ async def send_invoice_handler(message: Message, star_count: int):
         title="Пополнение счета",
         description=f"Пополнить счет на {star_count} звёзд!",
         prices=prices,
-        provider_token="your_provider_token_here",  # Добавьте ваш provider_token
+        provider_token="your_provider_token_here",  # Замените на ваш provider_token
         payload="channel_support",
-        currency="XTR",  # Используйте правильную валюту, например XTR
-        reply_markup=payment_keyboard(),  # Клавиатура с кнопками
+        currency="XTR",
+        reply_markup=payment_keyboard(),
     )
 
 # Обработчик предварительной проверки платежа
 async def pre_checkout_handler(pre_checkout_query: PreCheckoutQuery):
-    # Ответ на запрос, подтверждающий, что все ок
+    # Подтверждаем, что все ок для платежа
     await pre_checkout_query.answer(ok=True)
+
+# Обработчик успешного платежа
+async def success_payment_handler(message: Message):
+    # Сообщение об успешном пополнении и запрос на ввод номера карты
+    await message.reply("Вы успешно пополнили баланс! Теперь введите номер карты для вывода.")
+
+# Обработчик для получения номера карты
+async def receive_card_number(message: Message):
+    # Сообщение о создании заявки
+    await message.reply("Заявка успешно создана, ожидайте.")
