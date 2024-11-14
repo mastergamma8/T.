@@ -10,20 +10,21 @@ bot = Bot(token=TOKEN)
 # Создаем экземпляр диспетчера
 dp = Dispatcher()
 
-# Глобальная переменная для хранения количества звезд для каждого пользователя
+# Глобальная переменная для хранения состояния пользователей
+user_state = {}
 user_star_count = {}
 
 # Обработчик для команды /start
 @dp.message(F.text == "/start")
 async def start_command_handler(message: types.Message):
-    # Создаем клавиатуру с кнопками
+    # Основная клавиатура
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=[
             [types.KeyboardButton(text="⭐️Пополнить звездами")],
             [types.KeyboardButton(text="💸Вывод на карту")]
         ],
-        resize_keyboard=True,  # Настройки клавиатуры
-        one_time_keyboard=True  # Закрытие клавиатуры после нажатия кнопки
+        resize_keyboard=True,
+        one_time_keyboard=True
     )
     await message.reply("Выберите опцию", reply_markup=keyboard)
 
@@ -31,10 +32,10 @@ async def start_command_handler(message: types.Message):
 @dp.message(F.text == "⭐️Пополнить звездами")
 async def donate_handler(message: types.Message):
     await message.reply("Введите количество звезд, которое вы хотите отправить")
-    user_star_count[message.from_user.id] = None
+    user_state[message.from_user.id] = "waiting_for_star_count"
 
-# Обработчик для получения количества звезд
-@dp.message(lambda message: message.from_user.id in user_star_count and user_star_count[message.from_user.id] is None)
+# Обработчик для ввода количества звезд
+@dp.message(lambda message: user_state.get(message.from_user.id) == "waiting_for_star_count")
 async def receive_star_count(message: types.Message):
     try:
         star_count = int(message.text)
@@ -43,6 +44,7 @@ async def receive_star_count(message: types.Message):
             return
         user_star_count[message.from_user.id] = star_count
         await send_invoice_handler(message, star_count)
+        user_state[message.from_user.id] = None  # Сбрасываем состояние
     except ValueError:
         await message.reply("Пожалуйста, введите корректное количество звезд.")
 
@@ -55,7 +57,25 @@ dp.message.register(success_payment_handler, F.successful_payment)
 # Обработчик для кнопки "💸Вывод на карту"
 @dp.message(F.text == "💸Вывод на карту")
 async def withdraw_handler(message: types.Message):
-    await message.reply("Заявка успешно создана, Ожидайте.")
+    # Обновляем состояние для запроса номера карты
+    user_state[message.from_user.id] = "waiting_for_card_number"
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=[[types.KeyboardButton(text="⬅️Назад")]],
+        resize_keyboard=True
+    )
+    await message.reply("Введите номер карты", reply_markup=keyboard)
+
+# Обработчик для ввода номера карты
+@dp.message(lambda message: user_state.get(message.from_user.id) == "waiting_for_card_number")
+async def receive_card_number(message: types.Message):
+    if message.text == "⬅️Назад":
+        # Возвращаем пользователя к стартовому меню
+        await start_command_handler(message)
+        user_state[message.from_user.id] = None
+    else:
+        # Обрабатываем номер карты и подтверждаем создание заявки
+        await message.reply("Заявка успешно создана, Ожидайте.")
+        user_state[message.from_user.id] = None  # Сбрасываем состояние
 
 async def main():
     # Привязываем диспетчер к боту и запускаем polling
