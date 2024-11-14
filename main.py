@@ -25,6 +25,7 @@ async def show_main_menu(message: types.Message):
         one_time_keyboard=True
     )
     await message.reply("Выберите опцию", reply_markup=keyboard)
+    user_state[message.from_user.id] = None  # Сброс состояния
 
 # Обработчик для команды /start
 @dp.message(F.text == "/start")
@@ -46,7 +47,6 @@ async def donate_handler(message: types.Message):
 async def receive_star_count(message: types.Message):
     if message.text == "⬅️Назад":
         await show_main_menu(message)
-        user_state[message.from_user.id] = None
     else:
         try:
             star_count = int(message.text)
@@ -55,7 +55,7 @@ async def receive_star_count(message: types.Message):
                 return
             user_star_count[message.from_user.id] = star_count
             await send_invoice_handler(message, star_count)
-            user_state[message.from_user.id] = None  # Сбрасываем состояние
+            user_state[message.from_user.id] = None  # Сбрасываем состояние после отправки инвойса
         except ValueError:
             await message.reply("Пожалуйста, введите корректное количество звезд.")
 
@@ -68,7 +68,6 @@ dp.message.register(success_payment_handler, F.successful_payment)
 # Обработчик для кнопки "💸Вывод на карту"
 @dp.message(F.text == "💸Вывод на карту")
 async def withdraw_handler(message: types.Message):
-    # Обновляем состояние для запроса номера карты
     user_state[message.from_user.id] = "waiting_for_card_number"
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=[[types.KeyboardButton(text="⬅️Назад")]],
@@ -81,16 +80,12 @@ async def withdraw_handler(message: types.Message):
 async def receive_card_number(message: types.Message):
     if message.text == "⬅️Назад":
         await show_main_menu(message)
-        user_state[message.from_user.id] = None
     else:
-        # Обрабатываем номер карты и подтверждаем создание заявки
         await message.reply("Заявка успешно создана, Ожидайте.")
-        user_state[message.from_user.id] = None  # Сбрасываем состояние
+        user_state[message.from_user.id] = None  # Сбрасываем состояние после создания заявки
 
 async def main():
-    # Привязываем диспетчер к боту и запускаем polling
     await dp.start_polling(bot, skip_updates=True)
 
 if __name__ == "__main__":
-    # Запуск основной функции
     asyncio.run(main())
