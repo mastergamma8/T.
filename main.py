@@ -2,7 +2,7 @@ from aiogram import Bot, Dispatcher, types, F
 from handlers.payment import send_invoice_handler, pre_checkout_handler, success_payment_handler
 import asyncio
 
-TOKEN = '7596590431:AAEpLzcjwyar1hOqR1jGEnPY_ZA6YORzP-w'  # Замените на ваш токен бота
+TOKEN = '7225900512:AAFKfTU5UcE5qTBh6iKmIwlMDFzXnKTGuIw'  # Замените на ваш токен бота
 
 # Создаем экземпляр бота
 bot = Bot(token=TOKEN)
