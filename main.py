@@ -19,11 +19,13 @@ async def show_main_menu(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=[
             [types.KeyboardButton(text="⭐️Пополнить звездами")],
-            [types.KeyboardButton(text="💸Вывод на карту")]
         ],
         resize_keyboard=True,
         one_time_keyboard=True
     )
+    # Если пользователь отправил звезды, добавляем кнопку "Вывод на карту"
+    if user_star_count.get(message.from_user.id):
+        keyboard.add(types.KeyboardButton(text="💸Вывод на карту"))
     await message.reply("Выберите опцию", reply_markup=keyboard)
     user_state[message.from_user.id] = None  # Сброс состояния
 
@@ -56,6 +58,7 @@ async def receive_star_count(message: types.Message):
             user_star_count[message.from_user.id] = star_count
             await send_invoice_handler(message, star_count)
             user_state[message.from_user.id] = None  # Сбрасываем состояние после отправки инвойса
+            await show_main_menu(message)  # Обновляем меню, чтобы появилась кнопка вывода на карту
         except ValueError:
             await message.reply("Пожалуйста, введите корректное количество звезд.")
 
@@ -63,11 +66,18 @@ async def receive_star_count(message: types.Message):
 dp.pre_checkout_query.register(pre_checkout_handler)
 
 # Обработчик успешной оплаты
-dp.message.register(success_payment_handler, F.successful_payment)
+@dp.message.register(success_payment_handler, F.successful_payment)
+async def handle_successful_payment(message: types.Message):
+    # Сохраняем, что пользователь оплатил определенное количество звезд
+    user_star_count[message.from_user.id] += message.successful_payment.total_amount  # или просто установите количество звезд, если не используется сумма
+    await show_main_menu(message)  # Обновляем главное меню и добавляем кнопку "Вывод на карту"
 
 # Обработчик для кнопки "💸Вывод на карту"
 @dp.message(F.text == "💸Вывод на карту")
 async def withdraw_handler(message: types.Message):
+    if not user_star_count.get(message.from_user.id):  # Проверка, отправил ли пользователь звезды
+        await message.reply("Сначала пополните баланс звездами, чтобы воспользоваться выводом на карту.")
+        return
     user_state[message.from_user.id] = "waiting_for_card_number"
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=[[types.KeyboardButton(text="⬅️Назад")]],
