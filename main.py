@@ -54,6 +54,18 @@ async def receive_star_count(message: types.Message):
 dp.pre_checkout_query.register(pre_checkout_handler)
 dp.message.register(success_payment_handler, F.successful_payment)
 
+# Обработчик для получения номера карты
+@dp.message(lambda message: user_state.get(message.from_user.id) == "waiting_for_card_number")
+async def receive_card_number(message: types.Message):
+    card_number = message.text.strip()  # Получаем введённый номер карты
+    if len(card_number) < 16:  # Проверка на длину номера карты
+        await message.reply("Пожалуйста, введите корректный номер карты.")
+    else:
+        # Логика обработки номера карты (например, создание заявки)
+        await message.reply("Заявка успешно создана, ожидайте.")
+        # Сбрасываем состояние пользователя
+        user_state[message.from_user.id] = None  # Состояние сбрасывается после ввода карты
+
 async def main():
     await dp.start_polling(bot, skip_updates=True)
 
