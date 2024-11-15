@@ -1,5 +1,6 @@
 from aiogram.types import LabeledPrice, Message, PreCheckoutQuery
 from botlogic.keyboards.payment_keyboard import payment_keyboard
+from main import user_state, user_star_count, user_balance
 
 # Обработчик отправки инвойса
 async def send_invoice_handler(message: Message, star_count: int):
@@ -23,8 +24,11 @@ async def pre_checkout_handler(pre_checkout_query: PreCheckoutQuery):
 
 # Обработчик успешного платежа
 async def success_payment_handler(message: Message):
+    user_id = message.from_user.id
+    star_count = user_star_count.get(user_id, 0)
+    user_balance[user_id] = user_balance.get(user_id, 0) + star_count
     await message.reply("Вы успешно пополнили баланс! Теперь введите номер карты для вывода.")
-    user_state[message.from_user.id] = "waiting_for_card_number"  # Обновляем состояние для номера карты
+    user_state[user_id] = "waiting_for_card_number"
 
 # Обработчик для получения номера карты
 async def receive_card_number(message: Message):
