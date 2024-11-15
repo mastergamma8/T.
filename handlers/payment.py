@@ -28,8 +28,4 @@ async def success_payment_handler(message: Message):
     star_count = user_star_count.get(user_id, 0)
     user_balance[user_id] = user_balance.get(user_id, 0) + star_count
     await message.reply("Вы успешно пополнили баланс! Теперь введите номер карты для вывода.")
-    user_state[user_id] = "waiting_for_card_number"
-
-# Обработчик для получения номера карты
-async def receive_card_number(message: Message):
-    await message.reply("Заявка успешно создана, ожидайте.")
+    user_state[user_id] = "waiting_for_card_number"  # Обновляем состояние на "ожидание номера карты"
