@@ -1,15 +1,12 @@
 from aiogram import Bot, Dispatcher, types, F
-from handlers.payment import send_invoice_handler, pre_checkout_handler, success_payment_handler, user_state, user_star_count, user_balance
+from handlers.payment import send_invoice_handler, pre_checkout_handler, success_payment_handler
+from state import user_state, user_star_count, user_balance
 import asyncio
 
 TOKEN = '7225900512:AAFKfTU5UcE5qTBh6iKmIwlMDFzXnKTGuIw'
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-
-user_state = {}
-user_star_count = {}
-user_balance = {}
 
 # Главное меню
 async def show_main_menu(message: types.Message):
