@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher, types, F
-from handlers.payment import send_invoice_handler, pre_checkout_handler, success_payment_handler, receive_card_number
+from handlers.payment import send_invoice_handler, pre_checkout_handler, success_payment_handler, user_state, user_star_count, user_balance
 import asyncio
 
 TOKEN = '7225900512:AAFKfTU5UcE5qTBh6iKmIwlMDFzXnKTGuIw'
@@ -9,6 +9,7 @@ dp = Dispatcher()
 
 user_state = {}
 user_star_count = {}
+user_balance = {}
 
 # Главное меню
 async def show_main_menu(message: types.Message):
@@ -51,15 +52,6 @@ async def receive_star_count(message: types.Message):
             user_state[message.from_user.id] = None
         except ValueError:
             await message.reply("Пожалуйста, введите корректное количество звезд.")
-
-# Получение номера карты после успешного пополнения
-@dp.message(lambda message: user_state.get(message.from_user.id) == "waiting_for_card_number")
-async def handle_card_number(message: types.Message):
-    if message.text == "⬅️Назад":
-        await show_main_menu(message)
-    else:
-        await receive_card_number(message)
-        user_state[message.from_user.id] = None
 
 # Обработчики для предварительной проверки и успешной оплаты
 dp.pre_checkout_query.register(pre_checkout_handler)
